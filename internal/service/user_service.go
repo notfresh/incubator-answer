@@ -23,9 +23,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-answer/internal/base/constant"
 	"github.com/apache/incubator-answer/internal/service/user_notification_config"
-	"time"
 
 	"github.com/apache/incubator-answer/internal/base/handler"
 	"github.com/apache/incubator-answer/internal/base/reason"
@@ -385,6 +386,25 @@ func (us *UserService) UserUpdateInterface(ctx context.Context, req *schema.Upda
 }
 
 // UserRegisterByEmail user register
+/*
+The given code is a function called  `UserRegisterByEmail`  that registers a user by email. It takes a context, a  `UserRegisterReq`  object, and returns a  `UserLoginResp`  object, a list of form error fields, and an error.
+
+Here is a step-by-step explanation of the code:
+
+1. The function begins by calling the  `GetByEmail`  method of the  `userRepo`  object to check if a user with the given email already exists. If there is an error in retrieving the user, it is returned as an error from the function.
+2. If a user with the given email already exists, an error field is appended to the  `errFields`  list, indicating that the email is a duplicate. This list is then returned along with a  `BadRequest`  error.
+3. If the email is not a duplicate, a new  `User`  object is created and populated with the provided email, display name, and encrypted password. The  `MakeUsername`  method of the  `userCommonService`  object is called to generate a username based on the provided name. If there is an error in generating the username, an error field is appended to the  `errFields`  list and returned along with the error.
+4. The remaining fields of the  `userInfo`  object are set, including the IP info, email status, user status, and last login date.
+5. The  `AddUser`  method of the  `userRepo`  object is called to add the user to the repository. If there is an error in adding the user, it is returned as an error from the function.
+6. The  `SetDefaultUserNotificationConfig`  method of the  `userNotificationConfigService`  object is called to set the default notification configuration for the user. If there is an error in setting the configuration, it is logged but does not affect the flow of the function.
+7. An email code content object is created with the user's email and ID. A verification email URL is generated using the  `getSiteUrl`  method of the  `UserService`  object and a randomly generated code. The  `RegisterTemplate`  method of the  `emailService`  object is called to get the title and body of the email template. If there is an error in retrieving the template, it is returned as an error from the function.
+8. A goroutine is started to send and save the email using the  `SendAndSaveCode`  method of the  `emailService`  object. The email contains the user's email, the title and body of the email template, the code, and the JSON representation of the email code content.
+9. The  `GetUserRole`  method of the  `userRoleService`  object is called to get the role ID of the user. If there is an error in retrieving the role ID, it is logged but does not affect the flow of the function.
+10. A  `UserLoginResp`  object is created and populated with the user's information. The  `FormatAvatar`  method of the  `siteInfoService`  object is called to format the user's avatar URL. The  `SetUserCacheInfo`  method of the  `authService`  object is called to set the user's cache information and generate access and visit tokens. If there is an error in setting the cache information, it is returned as an error from the function.
+11. The role ID is assigned to the  `RoleID`  field of the  `UserLoginResp`  object.
+12. If the user has an admin role, the  `SetAdminUserCacheInfo`  method of the  `authService`  object is called to set the admin user's cache information using the access token. If there is an error in setting the cache information, it is returned as an error from the function.
+13. Finally, the  `UserLoginResp`  object is returned along with a nil  `errFields`  list and a nil error.
+*/
 func (us *UserService) UserRegisterByEmail(ctx context.Context, registerUserInfo *schema.UserRegisterReq) (
 	resp *schema.UserLoginResp, errFields []*validator.FormErrorField, err error,
 ) {

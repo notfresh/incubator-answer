@@ -20,6 +20,8 @@
 package controller
 
 import (
+	"net/url"
+
 	"github.com/apache/incubator-answer/internal/base/constant"
 	"github.com/apache/incubator-answer/internal/base/handler"
 	"github.com/apache/incubator-answer/internal/base/middleware"
@@ -38,7 +40,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/segmentfault/pacman/errors"
 	"github.com/segmentfault/pacman/log"
-	"net/url"
 )
 
 // UserController user controller
@@ -127,6 +128,30 @@ func (uc *UserController) GetOtherUserInfoByUsername(ctx *gin.Context) {
 // @Param data body schema.UserEmailLoginReq true "UserEmailLogin"
 // @Success 200 {object} handler.RespBody{data=schema.UserLoginResp}
 // @Router /answer/api/v1/user/login/email [post]
+/*
+The given code is a method called "UserEmailLogin" in a UserController struct. This method is used to handle the login process for a user using their email.
+
+Here is a step-by-step explanation of the code:
+
+1. The method starts by creating an empty UserEmailLoginReq struct, which is used to store the user's login request data.
+
+2. The code then uses a BindAndCheck function from a handler package to bind the request data to the req struct and check for any binding errors. If there are binding errors, the function returns and the login process is stopped.
+
+3. The code then calls a middleware function called GetUserIsAdminModerator to check if the user is an admin or moderator. The result is stored in the isAdmin variable.
+
+4. If the user is not an admin or moderator, the code proceeds to verify the captcha. It calls the ActionRecordVerifyCaptcha function from the actionService service, passing the captcha action type, client IP, captcha ID, and captcha code. If the captcha verification fails, an error response is returned with the appropriate error message.
+
+5. If the captcha verification passes or the user is an admin or moderator, the code calls the EmailLogin function from the userService service, passing the request data. This function handles the actual login process and returns a response and an error.
+
+6. If there is an error during the login process, the code adds a new action record using the ActionRecordAdd function from the actionService service. It also creates an error response with the appropriate error message and returns it.
+
+7. If the login is successful and the user is not an admin or moderator, the code calls the ActionRecordDel function from the actionService service to delete the action record for the captcha.
+
+8. The code then calls the setVisitCookies function to set visit cookies for the user.
+
+9. Finally, the code calls the HandleResponse function from the handler package to send the response to the client. The response data includes any errors and the login response itself.
+
+*/
 func (uc *UserController) UserEmailLogin(ctx *gin.Context) {
 	req := &schema.UserEmailLoginReq{}
 	if handler.BindAndCheck(ctx, req) {
@@ -249,6 +274,20 @@ func (uc *UserController) UserLogout(ctx *gin.Context) {
 // @Param data body schema.UserRegisterReq true "UserRegisterReq"
 // @Success 200 {object} handler.RespBody{data=schema.UserLoginResp}
 // @Router /answer/api/v1/user/register/email [post]
+/*
+The following code is a function called  `UserRegisterByEmail`  in a UserController struct. It handles the registration of a user by email.
+
+1. It checks whether the site allows registration or not by calling the  `GetSiteLogin`  function from  `siteInfoCommonService` . If there is an error, it handles the response and returns.
+2. It checks if the site allows new registrations and email registrations. If not, it handles the response and returns.
+3. It creates a new  `UserRegisterReq`  struct and binds the request body to it. If there is an error in binding or validation, it handles the response and returns.
+4. It checks if the email domain is allowed by calling the  `EmailInAllowEmailDomain`  function from  `checker`  package. If not, it handles the response and returns.
+5. It sets the IP of the request to the  `IP`  field of the  `UserRegisterReq`  struct.
+6. It checks if the user is an admin by calling the  `GetUserIsAdminModerator`  function from  `middleware`  package. If not, it verifies the captcha by calling the  `ActionRecordVerifyCaptcha`  function from  `actionService`  package. If the captcha verification fails, it handles the response and returns.
+7. It calls the  `UserRegisterByEmail`  function from  `userService`  package to register the user. It returns the response, error fields, and error.
+8. If there are error fields, it translates the error messages and handles the response with the error fields.
+9. If there are no error fields, it handles the response with the response data.
+
+*/
 func (uc *UserController) UserRegisterByEmail(ctx *gin.Context) {
 	// check whether site allow register or not
 	siteInfo, err := uc.siteInfoCommonService.GetSiteLogin(ctx)

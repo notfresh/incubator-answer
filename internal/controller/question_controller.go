@@ -20,6 +20,8 @@
 package controller
 
 import (
+	"net/http"
+
 	"github.com/apache/incubator-answer/internal/base/handler"
 	"github.com/apache/incubator-answer/internal/base/middleware"
 	"github.com/apache/incubator-answer/internal/base/pager"
@@ -37,7 +39,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/segmentfault/pacman/errors"
-	"net/http"
 )
 
 // QuestionController question controller

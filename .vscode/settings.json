@@ -2,5 +2,23 @@
   "eslint.workingDirectories": [
     "ui"
   ],
-  "explorer.autoReveal": "focusNoScroll"
+  "explorer.autoReveal": "focusNoScroll",
+  "favorites.resources": [
+    {
+      "filePath": "internal/router/answer_api_router.go",
+      "group": "Default"
+    },
+    {
+      "filePath": "internal/controller",
+      "group": "Default"
+    },
+    {
+      "filePath": "internal/service",
+      "group": "Default"
+    },
+    {
+      "filePath": "internal/controller/user_controller.go",
+      "group": "Default"
+    }
+  ]
 }
